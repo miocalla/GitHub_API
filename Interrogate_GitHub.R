@@ -11,25 +11,25 @@ library(httr)
 oauth_endpoints("github")
 
 # Change based on what you 
-myapp <- oauth_app(appname = "Access_GitHub",
+my_app <- oauth_app(appname = "Access_GitHub",
                    key = "405a5a528e18cb7fd282",
                    secret = "7ed344909e30a8bc2ff23179248cb821f7ee236a")
 
 # Get OAuth credentials
-github_token <- oauth2.0_token(oauth_endpoints("github"), myapp)
+github_token <- oauth2.0_token(oauth_endpoints("github"), my_app)
 
 # Use API
-gtoken <- config(token = github_token)
-req <- GET("https://api.github.com/users/miocalla/repos", gtoken)
+my_token <- config(token = github_token)
+following_data <- GET("https://api.github.com/users/miocalla/repos", my_token)
 
 # Take action on http error
-stop_for_status(req)
+stop_for_status(following_data)
 
 # Extract content from a request
-json1 = content(req)
+following_data_content = content(following_data)
 
 # Convert to a data.frame
-gitDF = jsonlite::fromJSON(jsonlite::toJSON(json1))
+data_frame = jsonlite::fromJSON(jsonlite::toJSON(following_data_content))
 
 # Subset data.frame
-gitDF[gitDF$full_name == "miocalla/datasharing", "created_at"] 
+data_frame[data_frame$full_name == "miocalla/datasharing", "created_at"] 
