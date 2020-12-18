@@ -52,14 +52,19 @@ all_users_df = data.frame(
 for (i in 1:length(user_ids)) 
 {
 
-  #Retrieve an individual users following list
+  # Retrieve an individual users following list
   following_url = paste("https://api.github.com/users/", user_ids[i], "/following", sep = "")
   following = GET(following_url, my_token)
-  followingContent = content(following)
+  following_content = content(following)
   
   # Skip user if they don't follow anybody
-  if (length(followingContent) == 0) 
+  if (length(following_content) == 0) 
   {
     next
   }
+  
+  # Add followings to a data frame and retrieve usernames
+  following_df = jsonlite::fromJSON(jsonlite::toJSON(following_content))
+  following_login = following_df$login
+  
 }
