@@ -33,3 +33,17 @@ data_frame = jsonlite::fromJSON(jsonlite::toJSON(following_data_content))
 
 # Subset data.frame
 data_frame[data_frame$full_name == "miocalla/datasharing", "created_at"] 
+
+# Retrieve usernames 
+id = dataFrame$login
+user_ids = c(id)
+
+# Create empty vectors and data frame
+allUsers = c()
+allUsersDF = data.frame(
+  username = integer(),
+  following = integer(),
+  followers = integer(),
+  repositories = integer(),
+  dateCreated = integer()
+)
