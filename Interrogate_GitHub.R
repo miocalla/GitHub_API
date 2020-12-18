@@ -32,7 +32,33 @@ following_data_content = content(following_data)
 data_frame = jsonlite::fromJSON(jsonlite::toJSON(following_data_content))
 
 # Subset data.frame
-data_frame[data_frame$full_name == "miocalla/datasharing", "created_at"] 
+data_frame[data_frame$full_name == "miocalla/datasharing", "created_at"]
+
+## My GitHub Data
+# Retrieve my data
+my_data = fromJSON("https://api.github.com/users/miocalla")
+
+# Display the number of followers
+my_data$followers
+
+# Gives user names of all my followers
+followers = fromJSON("https://api.github.com/users/miocalla/followers")
+followers$login
+
+# Display the number of users I am following
+my_data$following
+
+# Gives user names of all the users I am following
+following = fromJSON("https://api.github.com/users/miocalla/following")
+following$login
+
+# Display the number of repositories I have
+my_data$public_repos
+
+# Gives the name and creation date for my repositories
+repositories = fromJSON("https://api.github.com/users/miocalla/repos")
+repositories$name
+repositories$created_at
 
 # Retrieve usernames 
 id = data_frame$login
