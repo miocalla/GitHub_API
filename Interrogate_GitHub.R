@@ -39,11 +39,27 @@ id = dataFrame$login
 user_ids = c(id)
 
 # Create empty vectors and data frame
-allUsers = c()
-allUsersDF = data.frame(
+all_users = c()
+all_users_df = data.frame(
   username = integer(),
   following = integer(),
   followers = integer(),
   repositories = integer(),
-  dateCreated = integer()
+  date_created = integer()
 )
+
+# Loop through the list of usernames in order to find users to add to the list
+for (i in 1:length(user_ids)) 
+{
+
+  #Retrieve an individual users following list
+  following_url = paste("https://api.github.com/users/", user_ids[i], "/following", sep = "")
+  following = GET(following_url, my_token)
+  followingContent = content(following)
+  
+  # Skip user if they don't follow anybody
+  if (length(followingContent) == 0) 
+  {
+    next
+  }
+}
