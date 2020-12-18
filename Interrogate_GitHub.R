@@ -35,7 +35,7 @@ data_frame = jsonlite::fromJSON(jsonlite::toJSON(following_data_content))
 data_frame[data_frame$full_name == "miocalla/datasharing", "created_at"] 
 
 # Retrieve usernames 
-id = dataFrame$login
+id = data_frame$login
 user_ids = c(id)
 
 # Create empty vectors and data frame
@@ -63,8 +63,46 @@ for (i in 1:length(user_ids))
     next
   }
   
-  # Add followings to a data frame and retrieve usernames
+  # Add followings to data frame and get usernames
   following_df = jsonlite::fromJSON(jsonlite::toJSON(following_content))
   following_login = following_df$login
   
+  # Loop through all of the 'following' users
+  for (j in 1:length(following_login)) {
+    
+    # Check to see that the user is not already in the list of users
+    if (is.element(following_login[j], all_users) == FALSE) {
+      
+      #Add user to list of users
+      all_users[length(all_users) + 1] = following_login[j]
+      
+      # Get data on each user
+      following_url2 = paste("https://api.github.com/users/", following_login[j], sep = "")
+      following2 = GET(following_url2, myToken)
+      following_content2 = content(following2)
+      following_df2 = jsonlite::fromJSON(jsonlite::toJSON(following_content2))
+      
+      # Get each users following
+      following_number = following_df2$following
+      
+      # Get each users followers
+      followers_number = following_df2$followers
+      
+      # Get number of repositories for each user 
+      repos_number = following_df2$public_repos
+      
+      # Get year which each user joined Github
+      year_created = substr(following_df2$created_at, start = 1, stop = 4)
+      
+      # Add users data to a new row in data frame
+      all_users[nrow(all_users) + 1, ] = c(following_login[j], following_number, followers_number, repos_number, year_created)
+    }
+    next
+  }
+  
+  #Stop when there are more than 200 users
+  if(length(all_users) > 200) {
+    break
+  }
+  next
 }
