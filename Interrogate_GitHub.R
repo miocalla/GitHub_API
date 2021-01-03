@@ -6,6 +6,10 @@ library(jsonlite)
 library(httpuv)
 #install.packages("httr")
 library(httr)
+#install.packages("plotly")
+library(plotly)
+#install.packages("devtools")
+library(devtools)
 
 # Can be github, linkedin etc depending on application
 oauth_endpoints("github")
@@ -63,7 +67,7 @@ repositories$created_at
 # I decided to use the GitHub account of Fabien Potencier for this task as my account is relatively new
 # From research I conducted, I learned that Potencier is one of the most active developers on GitHub with with 11.1k followers,
 # Began to interrogate Fabien Potencier's account to produce graphs, by first looking at his followers
-myData = GET("https://api.github.com/users/fabpot/followers?per_page=100;", myToken)
+myData = GET("https://api.github.com/users/fabpot/followers?per_page=100;", my_token)
 stop_for_status(myData)
 extract = content(myData)
 data_frame = jsonlite::fromJSON(jsonlite::toJSON(extract)) #converts into data frame
@@ -113,7 +117,7 @@ for (i in 1:length(user_ids))
       
       # Get data on each user
       following_url2 = paste("https://api.github.com/users/", following_login[j], sep = "")
-      following2 = GET(following_url2, myToken)
+      following2 = GET(following_url2, my_token)
       following_content2 = content(following2)
       following_df2 = jsonlite::fromJSON(jsonlite::toJSON(following_content2))
       
@@ -142,3 +146,68 @@ for (i in 1:length(user_ids))
   next
 }
 
+Sys.setenv("plotly_username"="miocalla")
+Sys.setenv("plotly_api_key"="w0tRKclIUvGiEcXpKoeN")
+
+# Plot 1
+# plot followers vs repositories coloured by year
+plot_one = plot_ly(data = all_users_df, x = ~repositories, y = ~followers, 
+                text = ~paste("Followers: ", followers, "<br>Repositories: ", 
+                              repositories, "<br>Date Created:", date_created), color = ~date_created)
+plot_one
+
+# Send to plotly
+api_create(plot_one, filename = "Followers vs Repositories")
+
+# Plot 2
+# Graphs following v followers coloured by year
+plot_two = plot_ly(data = all_users_df, x = ~following, y = ~followers, text = ~paste("Followers: ", followers, "<br>Following: ", following), color = ~date_created)
+plot_two
+
+#send to plotly
+api_create(plot_two, filename = "Following vs Followers")
+
+# Plot 3
+
+#now attempting to graph the 10 most popular languages used by the 250 users.
+languages = c()
+
+for (i in 1:length(user_ids)) {
+  
+  RepositoriesUrl = paste("https://api.github.com/users/", user_ids[i], "/repos", sep = "")
+  Repositories = GET(RepositoriesUrl, my_token)
+  RepositoriesContent = content(Repositories)
+  RepositoriesDF = jsonlite::fromJSON(jsonlite::toJSON(RepositoriesContent))
+  RepositoriesNames = RepositoriesDF$name
+  
+  #Loop through all the repositories of an individual user
+  for (j in 1: length(RepositoriesNames)) {
+    
+    #Find all repositories and save in data frame
+    RepositoriesUrl2 = paste("https://api.github.com/repos/", user_ids[i], "/", RepositoriesNames[j], sep = "")
+    Repositories2 = GET(RepositoriesUrl2, my_token)
+    RepositoriesContent2 = content(Repositories2)
+    RepositoriesDF2 = jsonlite::fromJSON(jsonlite::toJSON(RepositoriesContent2))
+    language = RepositoriesDF2$language
+    
+    #Removes repositories containing no specific languages
+    if (length(language) != 0 && language != "<NA>") {
+      languages[length(languages)+1] = language
+    }
+    next
+  }
+  next
+}
+
+# Puts 10 most popular languages in table 
+all_languages = sort(table(languages), increasing=TRUE)
+top_ten = all_languages[(length(all_languages)-9):length(all_languages)]
+
+# Converts to dataframe
+language_df = as.data.frame(top_ten)
+
+# Plot the data frame of languages
+plot_three = plot_ly(data = language_df, x = language_df$languages, y = language_df$Freq, type = "bar")
+plot_three
+
+api_create(plot_three, filename = "Top 10 Most Popular Languages")
