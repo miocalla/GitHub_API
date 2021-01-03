@@ -60,6 +60,15 @@ repositories = fromJSON("https://api.github.com/users/miocalla/repos")
 repositories$name
 repositories$created_at
 
+# I decided to use the GitHub account of Fabien Potencier for this task as my account is relatively new
+# From research I conducted, I learned that Potencier is one of the most active developers on GitHub with with 11.1k followers,
+# Began to interrogate Fabien Potencier's account to produce graphs, by first looking at his followers
+myData = GET("https://api.github.com/users/fabpot/followers?per_page=100;", myToken)
+stop_for_status(myData)
+extract = content(myData)
+data_frame = jsonlite::fromJSON(jsonlite::toJSON(extract)) #converts into data frame
+data_frame$login
+
 # Retrieve usernames 
 id = data_frame$login
 user_ids = c(id)
