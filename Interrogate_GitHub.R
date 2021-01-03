@@ -87,12 +87,12 @@ all_users_df = data.frame(
 for (i in 1:length(user_ids)) 
 {
 
-  # Retrieve an individual users following list
+  # Retrieve user's following list
   following_url = paste("https://api.github.com/users/", user_ids[i], "/following", sep = "")
   following = GET(following_url, my_token)
   following_content = content(following)
   
-  # Skip user if they don't follow anybody
+  # Skip if user doesn't follow anyone
   if (length(following_content) == 0) 
   {
     next
@@ -108,7 +108,7 @@ for (i in 1:length(user_ids))
     # Check to see that the user is not already in the list of users
     if (is.element(following_login[j], all_users) == FALSE) {
       
-      #Add user to list of users
+      # Add user to list of users
       all_users[length(all_users) + 1] = following_login[j]
       
       # Get data on each user
@@ -130,14 +130,15 @@ for (i in 1:length(user_ids))
       year_created = substr(following_df2$created_at, start = 1, stop = 4)
       
       # Add users data to a new row in data frame
-      all_users[nrow(all_users) + 1, ] = c(following_login[j], following_number, followers_number, repos_number, year_created)
+      all_users_df[nrow(all_users_df) + 1, ] = c(following_login[j], following_number, followers_number, repos_number, year_created)
     }
     next
   }
   
-  #Stop when there are more than 200 users
+  # Stop when there are more than 200 users
   if(length(all_users) > 200) {
     break
   }
   next
 }
+
